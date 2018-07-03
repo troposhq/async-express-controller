@@ -2,6 +2,8 @@ const chai = require('chai');
 const { expect } = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
+const express = require('express');
+const request = require('supertest');
 
 chai.use(sinonChai);
 const asyncController = require('./index');
@@ -59,5 +61,35 @@ describe('express-controller', () => {
     expect(spy).to.have.been.calledWith(201);
     expect(spy).to.have.been.calledWith(headers);
     expect(spy).to.have.been.calledWith({ id });
+  });
+
+  let app;
+  let spy;
+  let error;
+  const body = { hello: 'world' };
+
+  beforeEach(() => {
+    error = new Error('Oops!');
+    spy = sinon.spy();
+    app = express();
+    app.all('/', asyncController(async () => ({ statusCode: 302, body })));
+    app.all('/error', asyncController(async () => { throw error; }));
+    app.use((err, req, res, next) => {
+      spy(err);
+      res.send();
+    });
+  });
+
+  it('should work with express routes', async () => {
+    const result = await request(app)
+      .get('/')
+      .expect(302);
+    expect(result.body).to.deep.equal(body);
+  });
+
+  it('should go to the error handler', async () => {
+    await request(app)
+      .get('/error');
+    expect(spy).to.have.been.calledWith(error);
   });
 });
