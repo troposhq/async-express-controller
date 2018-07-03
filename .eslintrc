@@ -1,0 +1,22 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "max-len": [
+      "error",
+      {
+        "code": 100,
+        "ignoreComments": true
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.test.js"
+      ],
+      "env": {
+        "mocha": true
+      }
+    }
+  ]
+}
