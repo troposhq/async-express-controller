@@ -8,13 +8,15 @@ module.exports = fn => async (req, res, next, ...args) => {
       cookies = [],
       render,
       renderLocals,
+      redirect,
     } = result;
 
-    res.status(status);
+    if (!redirect) res.status(status);
     if (headers) res.set(headers);
 
     cookies.forEach(x => res.cookie(x.name, x.value, x.options));
 
+    if (redirect) return res.redirect(...redirect);
     if (render) return res.render(render, renderLocals);
     if (body) return res.send(body);
     return res.send();

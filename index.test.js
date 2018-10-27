@@ -15,6 +15,7 @@ describe('express-controller', () => {
   let cookieSpy;
   let renderSpy;
   let sendSpy;
+  let redirectSpy;
   let nextSpy;
 
   beforeEach(() => {
@@ -23,6 +24,7 @@ describe('express-controller', () => {
     cookieSpy = sandbox.spy();
     renderSpy = sandbox.spy();
     sendSpy = sandbox.spy();
+    redirectSpy = sandbox.spy();
     nextSpy = sandbox.spy();
   });
 
@@ -95,6 +97,20 @@ describe('express-controller', () => {
     await foo(null, { status: statusSpy, render: renderSpy }, null);
     expect(statusSpy).to.have.been.calledWith(201);
     expect(renderSpy).to.have.been.calledOnceWithExactly('sign-up', { foo: 'bar' });
+  });
+
+  it('should call res.redirect with correct values', async () => {
+    const foo = asyncController(async () => ({ redirect: ['/foo'] }));
+
+    await foo(null, { redirect: redirectSpy }, null);
+    expect(redirectSpy).to.have.been.calledOnceWithExactly('/foo');
+  });
+
+  it('should call res.redirect with correct values', async () => {
+    const foo = asyncController(async () => ({ redirect: [302, '/foo'] }));
+
+    await foo(null, { redirect: redirectSpy }, null);
+    expect(redirectSpy).to.have.been.calledOnceWithExactly(302, '/foo');
   });
 
   describe('express', () => {
