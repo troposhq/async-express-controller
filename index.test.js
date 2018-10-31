@@ -16,6 +16,7 @@ describe('express-controller', () => {
   let renderSpy;
   let sendSpy;
   let redirectSpy;
+  let csrfTokenStub;
   let nextSpy;
 
   beforeEach(() => {
@@ -25,6 +26,7 @@ describe('express-controller', () => {
     renderSpy = sandbox.spy();
     sendSpy = sandbox.spy();
     redirectSpy = sandbox.spy();
+    csrfTokenStub = sandbox.stub();
     nextSpy = sandbox.spy();
   });
 
@@ -111,6 +113,13 @@ describe('express-controller', () => {
 
     await foo(null, { redirect: redirectSpy }, null);
     expect(redirectSpy).to.have.been.calledOnceWithExactly(302, '/foo');
+  });
+
+  it('should add csrf token to renderLocals', async () => {
+    csrfTokenStub.returns('csrftoken');
+    const foo = asyncController(async () => ({ csrf: true, render: 'foo' }));
+    await foo({ csrfToken: csrfTokenStub }, { status: statusSpy, render: renderSpy }, null);
+    expect(renderSpy).to.have.been.calledOnceWithExactly('foo', { csrf: 'csrftoken' });
   });
 
   describe('express', () => {

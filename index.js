@@ -7,8 +7,9 @@ module.exports = fn => async (req, res, next, ...args) => {
       headers,
       cookies = [],
       render,
-      renderLocals,
+      renderLocals = {},
       redirect,
+      csrf,
     } = result;
 
     if (!redirect) res.status(status);
@@ -17,6 +18,7 @@ module.exports = fn => async (req, res, next, ...args) => {
     cookies.forEach(x => res.cookie(x.name, x.value, x.options));
 
     if (redirect) return res.redirect(...redirect);
+    if (csrf) renderLocals.csrf = req.csrfToken();
     if (render) return res.render(render, renderLocals);
     if (body) return res.send(body);
     return res.send();
